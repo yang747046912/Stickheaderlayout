@@ -136,7 +136,7 @@ public class StickHeaderLayout extends ViewGroup {
         titleView = getChildAt(1);
         measureChild(titleView, widthMeasureSpec, heightMeasureSpec);
         titleHeight = titleView.getMeasuredHeight();
-        contentHeight = height - titleHeight;
+        contentHeight = height - titleHeight - reservedheight;
         contentView = getChildAt(2);
         contentView.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(contentHeight, MeasureSpec.EXACTLY));
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -149,7 +149,7 @@ public class StickHeaderLayout extends ViewGroup {
             mIsBeingDragged = false;
             headView.layout(0, headView.getTop(), headView.getMeasuredWidth(), headView.getBottom());
             titleView.layout(0, titleView.getTop(), titleView.getMeasuredWidth(), titleView.getBottom());
-            contentView.layout(0, contentView.getTop(), contentView.getMeasuredWidth(), contentView.getBottom() + contentHeight);
+            contentView.layout(0, contentView.getTop(), contentView.getMeasuredWidth(), contentView.getBottom());
             return;
         } else {
             firstLayout = false;
@@ -161,6 +161,7 @@ public class StickHeaderLayout extends ViewGroup {
 
     private float sX = -1, sY = -1;
     private boolean mIsBeingDragged;
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final int action = MotionEventCompat.getActionMasked(ev);
