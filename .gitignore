@@ -70,6 +70,7 @@ captures/
 .idea/gradle.xml
 .idea/misc.xml
 .idea/vcs.xml
+
 .idea/modules.xml
 .idea/compiler.xml
 .idea/encodings.xml
