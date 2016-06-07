@@ -2,11 +2,23 @@ package com.sys.blackcat.stickheaderlayout;
 
 
 public interface IpmlScrollChangListener {
-    public boolean isReadyForPull();
+    /**
+     * 是否可以将head拉下来
+     */
+     boolean isReadyForPull();
 
-    public void onStartScroll();
+    /**
+     * 滚动开始
+     */
+     void onStartScroll();
 
-    public void onStopScroll();
+    /**滚动结束*/
+     void onStopScroll();
 
-    public void onScrollChange(int dy, int totallDy);
+    /**
+     * 滚动距离的变化
+     * @param dy    滚动的距离
+     * @param totallDy 滚动的最大距离
+     */
+     void onScrollChange(int dy, int totallDy);
 }

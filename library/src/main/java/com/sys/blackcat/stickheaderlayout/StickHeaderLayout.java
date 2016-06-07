@@ -1,6 +1,7 @@
 package com.sys.blackcat.stickheaderlayout;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
@@ -12,8 +13,9 @@ import android.view.ViewGroup;
 
 public class StickHeaderLayout extends ViewGroup {
 
-    private int reservedheight = 0;
-
+    /**向上滚动headView 保留的高度*/
+    private int retentionHeight = 0;
+    /**是否第一次布局*/
     private boolean firstLayout = true;
 
     private DragEdge dragEdge = DragEdge.None;
@@ -41,6 +43,9 @@ public class StickHeaderLayout extends ViewGroup {
 
     public StickHeaderLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs,R.styleable.StickHeaderLayout);
+        retentionHeight = typedArray.getDimensionPixelSize(R.styleable.StickHeaderLayout_retentionHeight,0);
+        typedArray.recycle();
         mDragHelper = ViewDragHelper.create(this, 1f, callback);
     }
 
@@ -69,25 +74,25 @@ public class StickHeaderLayout extends ViewGroup {
             int headViewTop = headView.getTop() + dy;
             if (headViewTop > 0) {
                 headViewTop = 0;
-            } else if (headViewTop < -headHeight + reservedheight) {
-                headViewTop = -headHeight + reservedheight;
+            } else if (headViewTop < -headHeight + retentionHeight) {
+                headViewTop = -headHeight + retentionHeight;
             }
             headView.layout(0, headViewTop, getMeasuredWidth(), headViewTop + headHeight);
             if (scroll != null) {
-                scroll.onScrollChange(Math.abs(headViewTop), headHeight - reservedheight);
+                scroll.onScrollChange(Math.abs(headViewTop), headHeight - retentionHeight);
             }
             int titleTop = titleView.getTop() + dy;
             if (titleTop > headHeight) {
                 titleTop = headHeight;
-            } else if (titleTop < reservedheight) {
-                titleTop = reservedheight;
+            } else if (titleTop < retentionHeight) {
+                titleTop = retentionHeight;
             }
             titleView.layout(0, titleTop, getMeasuredWidth(), titleTop + titleHeight);
             int contentTop = contentView.getTop() + dy;
             if (contentTop > headHeight + titleHeight) {
                 contentTop = headHeight + titleHeight;
-            } else if (contentTop < titleHeight + reservedheight) {
-                contentTop = titleHeight + reservedheight;
+            } else if (contentTop < titleHeight + retentionHeight) {
+                contentTop = titleHeight + retentionHeight;
             }
             return contentTop;
         }
@@ -98,7 +103,7 @@ public class StickHeaderLayout extends ViewGroup {
             super.onViewReleased(releasedChild, xvel, yvel);
             if (dragEdge == DragEdge.Bottom) {
                 if (yvel < -mDragHelper.getMinVelocity())
-                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + reservedheight);
+                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
             } else if (dragEdge == DragEdge.Top) {
                 if (yvel > mDragHelper.getMinVelocity())
                     mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
@@ -113,7 +118,7 @@ public class StickHeaderLayout extends ViewGroup {
             titleView.layout(0, contentTop - titleHeight, titleView.getMeasuredWidth(), contentTop);
             headView.layout(0, contentTop - titleHeight - headHeight, titleView.getMeasuredWidth(), contentTop - titleHeight);
             if (scroll != null) {
-                scroll.onScrollChange(Math.abs(headView.getTop()), headHeight - reservedheight);
+                scroll.onScrollChange(Math.abs(headView.getTop()), headHeight - retentionHeight);
             }
         }
     };
@@ -136,7 +141,7 @@ public class StickHeaderLayout extends ViewGroup {
         titleView = getChildAt(1);
         measureChild(titleView, widthMeasureSpec, heightMeasureSpec);
         titleHeight = titleView.getMeasuredHeight();
-        contentHeight = height - titleHeight - reservedheight;
+        contentHeight = height - titleHeight - retentionHeight;
         contentView = getChildAt(2);
         contentView.measure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(contentHeight, MeasureSpec.EXACTLY));
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -184,7 +189,7 @@ public class StickHeaderLayout extends ViewGroup {
                     return false;
                 } else {
                     if (dragEdge == DragEdge.Bottom) {
-                        if (titleView.getTop() == reservedheight) {
+                        if (titleView.getTop() == retentionHeight) {
                             mIsBeingDragged = false;
                             dragEdge = DragEdge.None;
                         }
@@ -207,7 +212,6 @@ public class StickHeaderLayout extends ViewGroup {
         }
         return mIsBeingDragged;
     }
-
 
     private void checkCanDrag(MotionEvent ev) {
         float dx = ev.getRawX() - sX;
@@ -240,7 +244,10 @@ public class StickHeaderLayout extends ViewGroup {
                 checkCanDrag(event);
                 if (mIsBeingDragged) {
                     getParent().requestDisallowInterceptTouchEvent(true);
-                    mDragHelper.processTouchEvent(event);
+                    try {
+                        mDragHelper.processTouchEvent(event);
+                    }catch (Exception e){
+                    }
                 }
                 break;
             }
@@ -263,8 +270,12 @@ public class StickHeaderLayout extends ViewGroup {
         Bottom
     }
 
-    public void setReservedheight(int reservedheight) {
-        this.reservedheight = reservedheight;
+    /**
+     * 设置向上滚动headView 保留的高度
+     * @param retentionHeight
+     */
+    public void setRetentionHeight(int retentionHeight) {
+        this.retentionHeight = retentionHeight;
     }
 
     public void setScroll(IpmlScrollChangListener scroll) {
