@@ -15,4 +15,4 @@ compile 'com.sys.blackcat.stickheaderlayout:library:1.0.1'
 
 ## Demo预览
 -------------------------
-![mahua](http://7xp66q.com1.z0.glb.clouddn.com/3333.gif)
+![Stickheaderlayout](http://7xp66q.com1.z0.glb.clouddn.com/3333.gif)
