@@ -8,7 +8,7 @@ import android.widget.GridView;
 import com.sys.blackcat.stickheaderlayout.IpmlScrollChangListener;
 import com.sys.blackcat.stickheaderlayout.StickHeaderLayout;
 
-public class GridDemo extends AppCompatActivity {
+public class GridViewDemo extends AppCompatActivity {
 
 
     private StickHeaderLayout layout;

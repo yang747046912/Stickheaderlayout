@@ -34,5 +34,11 @@
         android:gravity="center"
         android:onClick="onClick"
         android:text="@string/recyclerView_example" />
-
+    <Button
+        android:id="@+id/btn_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:text="@string/viewPager_example" />
 </LinearLayout>

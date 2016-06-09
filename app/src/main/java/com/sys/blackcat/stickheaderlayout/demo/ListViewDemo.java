@@ -8,7 +8,7 @@ import android.widget.ListView;
 import com.sys.blackcat.stickheaderlayout.IpmlScrollChangListener;
 import com.sys.blackcat.stickheaderlayout.StickHeaderLayout;
 
-public class ListDemo extends AppCompatActivity {
+public class ListViewDemo extends AppCompatActivity {
 
     private StickHeaderLayout layout;
     private ListView listView;

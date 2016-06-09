@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">StickHeaderLayout</string>
-    <string name="list_example">listExample</string>
-    <string name="grid_example">gridExample</string>
+    <string name="list_example">listViewExample</string>
+    <string name="grid_example">gridViewExample</string>
     <string name="scrollView_example">scrollViewExample</string>
     <string name="recyclerView_example">recyclerViewExample</string>
-
+    <string name="viewPager_example">viewPagerDemo</string>
 
 </resources>

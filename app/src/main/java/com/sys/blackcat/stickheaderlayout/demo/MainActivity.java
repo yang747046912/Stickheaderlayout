@@ -17,16 +17,19 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_list:
-                openActivty(ListDemo.class);
+                openActivty(ListViewDemo.class);
                 break;
             case R.id.btn_grid:
-                openActivty(GridDemo.class);
+                openActivty(GridViewDemo.class);
                 break;
             case R.id.btn_scrollview:
                 openActivty(ScrollViewDemo.class);
                 break;
             case R.id.btn_recycler_view:
                 openActivty(RecyclerViewDemo.class);
+                break;
+            case R.id.btn_view_pager:
+                openActivty(ViewPagerDemo.class);
                 break;
         }
     }

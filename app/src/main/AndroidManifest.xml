@@ -15,10 +15,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ListDemo" />
-        <activity android:name=".GridDemo" />
+        <activity android:name=".ListViewDemo" />
+        <activity android:name=".GridViewDemo" />
         <activity android:name=".ScrollViewDemo" />
-        <activity android:name=".RecyclerViewDemo"></activity>
+        <activity android:name=".RecyclerViewDemo" />
+        <activity
+            android:name=".ViewPagerDemo"
+            android:theme="@style/AppStyle" />
     </application>
 
 </manifest>
