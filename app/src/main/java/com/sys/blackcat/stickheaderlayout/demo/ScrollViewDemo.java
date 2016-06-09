@@ -18,7 +18,7 @@ public class ScrollViewDemo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scroll_view);
         setTitle(R.string.scrollView_example);
-        layout = (StickHeaderLayout) findViewById(R.id.stick_header_layout);
+        layout = (StickHeaderLayout) findViewById(R.id.stick_header_ladyout);
         scrollView = (ScrollView) findViewById(R.id.scroll_view);
         layout.setScroll(new IpmlScrollChangListener() {
             @Override
