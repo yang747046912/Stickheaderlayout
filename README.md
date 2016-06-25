@@ -18,7 +18,8 @@ compile 'com.sys.blackcat.stickheaderlayout:library:1.0.1'
 
 
 #自定义Stickheaderlayout介绍
-##效果![Stickheaderlayout](https://raw.githubusercontent.com/yang747046912/Stickheaderlayout/master/image/pp.gif)
+##效果
+![Stickheaderlayout](https://raw.githubusercontent.com/yang747046912/Stickheaderlayout/master/image/pp.gif)
 ##原理
 Stickheaderlayout 继承 ViewGroup ，总体分为三块
 - 头部
