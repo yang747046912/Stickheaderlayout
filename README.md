@@ -18,10 +18,8 @@ compile 'com.sys.blackcat.stickheaderlayout:library:1.0.1'
 
 # 自定义Stickheaderlayout介绍
 
-####https://github.com/yang747046912/Stickheaderlayout/
-
 ---------------
-#效果
+#效果演示
 ![Stickheaderlayout](https://raw.githubusercontent.com/yang747046912/Stickheaderlayout/master/image/pp.gif)
 
 #使用
