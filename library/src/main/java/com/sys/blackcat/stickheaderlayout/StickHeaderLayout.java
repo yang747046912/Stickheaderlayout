@@ -9,13 +9,18 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 
 
 public class StickHeaderLayout extends ViewGroup {
 
-    /**向上滚动headView 保留的高度*/
+    /**
+     * 向上滚动headView 保留的高度
+     */
     private int retentionHeight = 0;
-    /**是否第一次布局*/
+    /**
+     * 是否第一次布局
+     */
     private boolean firstLayout = true;
 
     private DragEdge dragEdge = DragEdge.None;
@@ -43,8 +48,8 @@ public class StickHeaderLayout extends ViewGroup {
 
     public StickHeaderLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        TypedArray typedArray = context.obtainStyledAttributes(attrs,R.styleable.StickHeaderLayout);
-        retentionHeight = typedArray.getDimensionPixelSize(R.styleable.StickHeaderLayout_retentionHeight,0);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.StickHeaderLayout);
+        retentionHeight = typedArray.getDimensionPixelSize(R.styleable.StickHeaderLayout_retentionHeight, 0);
         typedArray.recycle();
         mDragHelper = ViewDragHelper.create(this, 1f, callback);
     }
@@ -55,10 +60,10 @@ public class StickHeaderLayout extends ViewGroup {
         public void onViewDragStateChanged(int state) {
             super.onViewDragStateChanged(state);
             if (scroll != null) {
-                if (state == 0) {
+                if (state == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
                     scroll.onStopScroll();
                 }
-                if (state == 1) {
+                if (state == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
                     scroll.onStartScroll();
                 }
             }
@@ -169,10 +174,18 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        int x = (int) ev.getX();
+        int y = (int) ev.getY();
+        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
+            return super.onInterceptTouchEvent(ev);
+        }
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mDragHelper.processTouchEvent(ev);
+                if (mDragHelper.isViewUnder(titleView, (int) ev.getX(), (int) ev.getY())||mDragHelper.isViewUnder(headView, (int) ev.getX(), (int) ev.getY())) {
+                 return super.onInterceptTouchEvent(ev);
+                }
                 sX = ev.getRawX();
                 sY = ev.getRawY();
                 mIsBeingDragged = false;
@@ -236,6 +249,11 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
+            return super.onInterceptTouchEvent(event);
+        }
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -246,7 +264,7 @@ public class StickHeaderLayout extends ViewGroup {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     try {
                         mDragHelper.processTouchEvent(event);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                     }
                 }
                 break;
@@ -272,6 +290,7 @@ public class StickHeaderLayout extends ViewGroup {
 
     /**
      * 设置向上滚动headView 保留的高度
+     *
      * @param retentionHeight
      */
     public void setRetentionHeight(int retentionHeight) {
