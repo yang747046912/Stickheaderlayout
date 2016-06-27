@@ -174,17 +174,15 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        int x = (int) ev.getX();
-        int y = (int) ev.getY();
-        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
-            return super.onInterceptTouchEvent(ev);
+        if (!isTouchContentView(ev)) {
+            return super.onTouchEvent(ev);
         }
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mDragHelper.processTouchEvent(ev);
-                if (mDragHelper.isViewUnder(titleView, (int) ev.getX(), (int) ev.getY())||mDragHelper.isViewUnder(headView, (int) ev.getX(), (int) ev.getY())) {
-                 return super.onInterceptTouchEvent(ev);
+                if (mDragHelper.isViewUnder(titleView, (int) ev.getX(), (int) ev.getY()) || mDragHelper.isViewUnder(headView, (int) ev.getX(), (int) ev.getY())) {
+                    return super.onInterceptTouchEvent(ev);
                 }
                 sX = ev.getRawX();
                 sY = ev.getRawY();
@@ -249,10 +247,8 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
-            return super.onInterceptTouchEvent(event);
+        if (!isTouchContentView(event)) {
+            return super.onTouchEvent(event);
         }
         int action = event.getActionMasked();
         switch (action) {
@@ -278,6 +274,18 @@ public class StickHeaderLayout extends ViewGroup {
                 mDragHelper.processTouchEvent(event);
         }
         return super.onTouchEvent(event) || mIsBeingDragged || action == MotionEvent.ACTION_DOWN;
+    }
+
+    /**
+     * 判断触点是否在ContentView在
+     */
+    private boolean isTouchContentView(MotionEvent event) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
+            return false;
+        }
+        return true;
     }
 
     public enum DragEdge {
