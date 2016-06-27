@@ -133,13 +133,31 @@ public void onViewPositionChanged(View changedView, int left, int top, int dx, i
 ```
 
 ##手势的相关处理
+
+1. 触摸点判断
+```
+private boolean isTouchContentView(MotionEvent event) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
+            return false;
+        }
+        return true;
+    }
+```
 1. 事件的拦截
 ```
 public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (!isTouchContentView(ev)) {
+            return super.onTouchEvent(ev);
+        }
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mDragHelper.processTouchEvent(ev);
+                if (mDragHelper.isViewUnder(titleView, (int) ev.getX(), (int) ev.getY()) || mDragHelper.isViewUnder(headView, (int) ev.getX(), (int) ev.getY())) {
+                    return super.onInterceptTouchEvent(ev);
+                }
                 sX = ev.getRawX();
                 sY = ev.getRawY();
                 mIsBeingDragged = false;
@@ -182,6 +200,13 @@ public boolean onInterceptTouchEvent(MotionEvent ev) {
 ```
 2. 判断手势的滑动方向
 ```
+public enum DragEdge {
+        None,
+        Left,
+        Top,
+        Right,
+        Bottom
+    }
 private void checkCanDrag(MotionEvent ev) {
         float dx = ev.getRawX() - sX;
         float dy = ev.getRawY() - sY;
@@ -206,6 +231,9 @@ private void checkCanDrag(MotionEvent ev) {
 3. 事件的处理
 ``` 
 public boolean onTouchEvent(MotionEvent event) {
+        if (!isTouchContentView(event)) {
+            return super.onTouchEvent(event);
+        }
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -216,7 +244,7 @@ public boolean onTouchEvent(MotionEvent event) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     try {
                         mDragHelper.processTouchEvent(event);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                     }
                 }
                 break;
@@ -232,6 +260,8 @@ public boolean onTouchEvent(MotionEvent event) {
         return super.onTouchEvent(event) || mIsBeingDragged || action == MotionEvent.ACTION_DOWN;
     }
 ```
+
+
 #使用
 ##以ListView 为例子
 ####布局文件
