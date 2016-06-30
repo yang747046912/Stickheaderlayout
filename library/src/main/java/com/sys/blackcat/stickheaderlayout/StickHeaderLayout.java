@@ -71,28 +71,29 @@ public class StickHeaderLayout extends ViewGroup {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            return child == contentView;
+            return child == contentView || child == titleView || child == headView;
         }
 
         @Override
         public int clampViewPositionVertical(View child, int top, int dy) {
-            int headViewTop = headView.getTop() + dy;
-            if (headViewTop > 0) {
-                headViewTop = 0;
-            } else if (headViewTop < -headHeight + retentionHeight) {
-                headViewTop = -headHeight + retentionHeight;
+            if (child == headView) {
+                int headViewTop = headView.getTop() + dy;
+                if (headViewTop > 0) {
+                    headViewTop = 0;
+                } else if (headViewTop < -headHeight + retentionHeight) {
+                    headViewTop = -headHeight + retentionHeight;
+                }
+                return headViewTop;
             }
-            headView.layout(0, headViewTop, getMeasuredWidth(), headViewTop + headHeight);
-            if (scroll != null) {
-                scroll.onScrollChange(Math.abs(headViewTop), headHeight - retentionHeight);
+            if (child == titleView) {
+                int titleTop = titleView.getTop() + dy;
+                if (titleTop > headHeight) {
+                    titleTop = headHeight;
+                } else if (titleTop < retentionHeight) {
+                    titleTop = retentionHeight;
+                }
+                return titleTop;
             }
-            int titleTop = titleView.getTop() + dy;
-            if (titleTop > headHeight) {
-                titleTop = headHeight;
-            } else if (titleTop < retentionHeight) {
-                titleTop = retentionHeight;
-            }
-            titleView.layout(0, titleTop, getMeasuredWidth(), titleTop + titleHeight);
             int contentTop = contentView.getTop() + dy;
             if (contentTop > headHeight + titleHeight) {
                 contentTop = headHeight + titleHeight;
@@ -107,11 +108,27 @@ public class StickHeaderLayout extends ViewGroup {
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
             if (dragEdge == DragEdge.Bottom) {
-                if (yvel < -mDragHelper.getMinVelocity())
-                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
+                if (yvel < -mDragHelper.getMinVelocity()) {
+                    if (releasedChild == contentView) {
+                        mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
+                    } else if (releasedChild == headView) {
+                        mDragHelper.smoothSlideViewTo(headView, 0, -headHeight + retentionHeight);
+                    } else {
+                        mDragHelper.smoothSlideViewTo(titleView, 0, retentionHeight);
+                    }
+                }
+
             } else if (dragEdge == DragEdge.Top) {
-                if (yvel > mDragHelper.getMinVelocity())
-                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
+                if (yvel > mDragHelper.getMinVelocity()) {
+                    if (releasedChild == contentView) {
+                        mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
+                    } else if (releasedChild == headView) {
+                        mDragHelper.smoothSlideViewTo(headView, 0, 0);
+                    } else {
+                        mDragHelper.smoothSlideViewTo(titleView, 0, headHeight);
+                    }
+                }
+
             }
             invalidate();
         }
@@ -119,9 +136,19 @@ public class StickHeaderLayout extends ViewGroup {
         @Override
         public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             super.onViewPositionChanged(changedView, left, top, dx, dy);
-            int contentTop = contentView.getTop();
-            titleView.layout(0, contentTop - titleHeight, titleView.getMeasuredWidth(), contentTop);
-            headView.layout(0, contentTop - titleHeight - headHeight, titleView.getMeasuredWidth(), contentTop - titleHeight);
+            if (changedView == contentView) {
+                int contentTop = contentView.getTop();
+                titleView.layout(0, contentTop - titleHeight, titleView.getMeasuredWidth(), contentTop);
+                headView.layout(0, contentTop - titleHeight - headHeight, titleView.getMeasuredWidth(), contentTop - titleHeight);
+            } else if (changedView == headView) {
+                int contentTop = headView.getTop();
+                titleView.layout(0, contentTop + headHeight, titleView.getMeasuredWidth(), contentTop + headHeight + titleHeight);
+                contentView.layout(0, contentTop + headHeight + titleHeight, contentView.getMeasuredWidth(), contentTop + headHeight + titleHeight + contentHeight);
+            } else {
+                int contentTop = titleView.getTop();
+                headView.layout(0, contentTop - headHeight, headView.getMeasuredWidth(), contentTop);
+                contentView.layout(0, contentTop + titleHeight, contentView.getMeasuredWidth(), contentTop + titleHeight + contentHeight);
+            }
             if (scroll != null) {
                 scroll.onScrollChange(Math.abs(headView.getTop()), headHeight - retentionHeight);
             }
@@ -157,10 +184,9 @@ public class StickHeaderLayout extends ViewGroup {
         if (!firstLayout) {
             dragEdge = DragEdge.None;
             mIsBeingDragged = false;
-            headView.layout(0, headView.getTop(), headView.getMeasuredWidth(), headView.getBottom());
-            titleView.layout(0, titleView.getTop(), titleView.getMeasuredWidth(), titleView.getBottom());
-            contentView.layout(0, contentView.getTop(), contentView.getMeasuredWidth(), contentView.getBottom());
-            return;
+            headView.layout(0, headView.getTop(), headView.getMeasuredWidth(), headView.getTop() + headHeight);
+            titleView.layout(0, headView.getTop() + headHeight, titleView.getMeasuredWidth(), headView.getTop() + headHeight + titleHeight);
+            contentView.layout(0, headView.getTop() + headHeight + titleHeight, contentView.getMeasuredWidth(), headView.getTop() + headHeight + titleHeight + contentHeight);
         } else {
             firstLayout = false;
             headView.layout(0, 0, headView.getMeasuredWidth(), headHeight);
@@ -174,16 +200,10 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (!isTouchContentView(ev)) {
-            return super.onTouchEvent(ev);
-        }
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mDragHelper.processTouchEvent(ev);
-                if (mDragHelper.isViewUnder(titleView, (int) ev.getX(), (int) ev.getY()) || mDragHelper.isViewUnder(headView, (int) ev.getX(), (int) ev.getY())) {
-                    return super.onInterceptTouchEvent(ev);
-                }
                 sX = ev.getRawX();
                 sY = ev.getRawY();
                 mIsBeingDragged = false;
@@ -247,9 +267,6 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!isTouchContentView(event)) {
-            return super.onTouchEvent(event);
-        }
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -276,17 +293,6 @@ public class StickHeaderLayout extends ViewGroup {
         return super.onTouchEvent(event) || mIsBeingDragged || action == MotionEvent.ACTION_DOWN;
     }
 
-    /**
-     * 判断触点是否在ContentView在
-     */
-    private boolean isTouchContentView(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
-            return false;
-        }
-        return true;
-    }
 
     public enum DragEdge {
         None,
