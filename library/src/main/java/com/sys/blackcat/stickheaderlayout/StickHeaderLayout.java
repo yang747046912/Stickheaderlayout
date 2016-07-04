@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 
 
 public class StickHeaderLayout extends ViewGroup {
@@ -60,10 +59,10 @@ public class StickHeaderLayout extends ViewGroup {
         public void onViewDragStateChanged(int state) {
             super.onViewDragStateChanged(state);
             if (scroll != null) {
-                if (state == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                if (state == ViewDragHelper.STATE_IDLE) {
                     scroll.onStopScroll();
                 }
-                if (state == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                if (state == ViewDragHelper.STATE_SETTLING) {
                     scroll.onStartScroll();
                 }
             }
@@ -71,7 +70,7 @@ public class StickHeaderLayout extends ViewGroup {
 
         @Override
         public boolean tryCaptureView(View child, int pointerId) {
-            return child == contentView || child == titleView || child == headView;
+            return true;
         }
 
         @Override
@@ -109,26 +108,20 @@ public class StickHeaderLayout extends ViewGroup {
             super.onViewReleased(releasedChild, xvel, yvel);
             if (dragEdge == DragEdge.Bottom) {
                 if (yvel < -mDragHelper.getMinVelocity()) {
-                    if (releasedChild == contentView) {
-                        mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
-                    } else if (releasedChild == headView) {
-                        mDragHelper.smoothSlideViewTo(headView, 0, -headHeight + retentionHeight);
-                    } else {
-                        mDragHelper.smoothSlideViewTo(titleView, 0, retentionHeight);
-                    }
+                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
+                } else if (releasedChild == headView) {
+                    mDragHelper.smoothSlideViewTo(headView, 0, -headHeight + retentionHeight);
+                } else {
+                    mDragHelper.smoothSlideViewTo(titleView, 0, retentionHeight);
                 }
-
             } else if (dragEdge == DragEdge.Top) {
-                if (yvel > mDragHelper.getMinVelocity()) {
-                    if (releasedChild == contentView) {
-                        mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
-                    } else if (releasedChild == headView) {
-                        mDragHelper.smoothSlideViewTo(headView, 0, 0);
-                    } else {
-                        mDragHelper.smoothSlideViewTo(titleView, 0, headHeight);
-                    }
+                if (releasedChild == contentView) {
+                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
+                } else if (releasedChild == headView) {
+                    mDragHelper.smoothSlideViewTo(headView, 0, 0);
+                } else {
+                    mDragHelper.smoothSlideViewTo(titleView, 0, headHeight);
                 }
-
             }
             invalidate();
         }
