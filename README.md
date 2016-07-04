@@ -6,13 +6,13 @@ stickheaderlayout
 <dependency>
   <groupId>com.sys.blackcat.stickheaderlayout</groupId>
   <artifactId>library</artifactId>
-  <version>1.1.0</version>
+  <version>1.3.1</version>
   <type>pom</type>
 </dependency>
 ```
 -------------------
 ## Gradle 引用
-compile 'com.sys.blackcat.stickheaderlayout:library:1.1.0'
+compile 'com.sys.blackcat.stickheaderlayout:library:1.3.1'
 
 ### [ ![Download](https://api.bintray.com/packages/yang747046912/maven/StickHeaderLayout/images/download.svg) ](https://bintray.com/yang747046912/maven/StickHeaderLayout/_latestVersion)
 
@@ -51,44 +51,45 @@ Stickheaderlayout 继承 ViewGroup ，总体分为三块
 ##ViewDragHelper初始化
 1. 滚动状态监听
 ```
-public void onViewDragStateChanged(int state) {
+ public void onViewDragStateChanged(int state) {
             super.onViewDragStateChanged(state);
             if (scroll != null) {
-                if (state == 0) {
+                if (state == ViewDragHelper.STATE_IDLE) {
                     scroll.onStopScroll();
                 }
-                if (state == 1) {
+                if (state == ViewDragHelper.STATE_SETTLING) {
                     scroll.onStartScroll();
                 }
             }
         }
 ```
-2. 判断ViewDragHelper是否触发滚动
+2. 判断ViewDragHelper是否触发滚动 头部、标题、内容都可以滑动
 ```
 public boolean tryCaptureView(View child, int pointerId) {
-            return child == contentView;
+           return true;
         }
 ```
 3. 手指按住contentView时滚动时，头部、标题、内容的位置变化,返回contentView是移动距离
 ```
 public int clampViewPositionVertical(View child, int top, int dy) {
-            int headViewTop = headView.getTop() + dy;
-            if (headViewTop > 0) {
-                headViewTop = 0;
-            } else if (headViewTop < -headHeight + retentionHeight) {
-                headViewTop = -headHeight + retentionHeight;
+            if (child == headView) {
+                int headViewTop = headView.getTop() + dy;
+                if (headViewTop > 0) {
+                    headViewTop = 0;
+                } else if (headViewTop < -headHeight + retentionHeight) {
+                    headViewTop = -headHeight + retentionHeight;
+                }
+                return headViewTop;
             }
-            headView.layout(0, headViewTop, getMeasuredWidth(), headViewTop + headHeight);
-            if (scroll != null) {
-                scroll.onScrollChange(Math.abs(headViewTop), headHeight - retentionHeight);
+            if (child == titleView) {
+                int titleTop = titleView.getTop() + dy;
+                if (titleTop > headHeight) {
+                    titleTop = headHeight;
+                } else if (titleTop < retentionHeight) {
+                    titleTop = retentionHeight;
+                }
+                return titleTop;
             }
-            int titleTop = titleView.getTop() + dy;
-            if (titleTop > headHeight) {
-                titleTop = headHeight;
-            } else if (titleTop < retentionHeight) {
-                titleTop = retentionHeight;
-            }
-            titleView.layout(0, titleTop, getMeasuredWidth(), titleTop + titleHeight);
             int contentTop = contentView.getTop() + dy;
             if (contentTop > headHeight + titleHeight) {
                 contentTop = headHeight + titleHeight;
@@ -100,32 +101,45 @@ public int clampViewPositionVertical(View child, int top, int dy) {
 ```
 4. 手指离开屏幕时，触发快速滚动
 ```
-public enum DragEdge {
-        None,
-        Left,
-        Top,
-        Right,
-        Bottom
-    }
 public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
             if (dragEdge == DragEdge.Bottom) {
-                if (yvel < -mDragHelper.getMinVelocity())
+                if (yvel < -mDragHelper.getMinVelocity()) {
                     mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
+                } else if (releasedChild == headView) {
+                    mDragHelper.smoothSlideViewTo(headView, 0, -headHeight + retentionHeight);
+                } else {
+                    mDragHelper.smoothSlideViewTo(titleView, 0, retentionHeight);
+                }
             } else if (dragEdge == DragEdge.Top) {
-                if (yvel > mDragHelper.getMinVelocity())
+                if (releasedChild == contentView) {
                     mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
+                } else if (releasedChild == headView) {
+                    mDragHelper.smoothSlideViewTo(headView, 0, 0);
+                } else {
+                    mDragHelper.smoothSlideViewTo(titleView, 0, headHeight);
+                }
             }
             invalidate();
         }
 ```
-5. 手指离开屏幕时，触发快速滚动后头部、标题、内容的位置变化
+5. 触发快速滚动后头部、标题、内容的位置变化
 ```
 public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             super.onViewPositionChanged(changedView, left, top, dx, dy);
-            int contentTop = contentView.getTop();
-            titleView.layout(0, contentTop - titleHeight, titleView.getMeasuredWidth(), contentTop);
-            headView.layout(0, contentTop - titleHeight - headHeight, titleView.getMeasuredWidth(), contentTop - titleHeight);
+            if (changedView == contentView) {
+                int contentTop = contentView.getTop();
+                titleView.layout(0, contentTop - titleHeight, titleView.getMeasuredWidth(), contentTop);
+                headView.layout(0, contentTop - titleHeight - headHeight, titleView.getMeasuredWidth(), contentTop - titleHeight);
+            } else if (changedView == headView) {
+                int contentTop = headView.getTop();
+                titleView.layout(0, contentTop + headHeight, titleView.getMeasuredWidth(), contentTop + headHeight + titleHeight);
+                contentView.layout(0, contentTop + headHeight + titleHeight, contentView.getMeasuredWidth(), contentTop + headHeight + titleHeight + contentHeight);
+            } else {
+                int contentTop = titleView.getTop();
+                headView.layout(0, contentTop - headHeight, headView.getMeasuredWidth(), contentTop);
+                contentView.layout(0, contentTop + titleHeight, contentView.getMeasuredWidth(), contentTop + titleHeight + contentHeight);
+            }
             if (scroll != null) {
                 scroll.onScrollChange(Math.abs(headView.getTop()), headHeight - retentionHeight);
             }
@@ -133,31 +147,13 @@ public void onViewPositionChanged(View changedView, int left, int top, int dx, i
 ```
 
 ##手势的相关处理
-
-1. 触摸点判断
-```
-private boolean isTouchContentView(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-        if (mDragHelper.isViewUnder(titleView, x, y) || mDragHelper.isViewUnder(headView, x, y)) {
-            return false;
-        }
-        return true;
-    }
-```
 1. 事件的拦截
 ```
 public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (!isTouchContentView(ev)) {
-            return super.onTouchEvent(ev);
-        }
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mDragHelper.processTouchEvent(ev);
-                if (mDragHelper.isViewUnder(titleView, (int) ev.getX(), (int) ev.getY()) || mDragHelper.isViewUnder(headView, (int) ev.getX(), (int) ev.getY())) {
-                    return super.onInterceptTouchEvent(ev);
-                }
                 sX = ev.getRawX();
                 sY = ev.getRawY();
                 mIsBeingDragged = false;
@@ -230,10 +226,7 @@ private void checkCanDrag(MotionEvent ev) {
 ```
 3. 事件的处理
 ``` 
-public boolean onTouchEvent(MotionEvent event) {
-        if (!isTouchContentView(event)) {
-            return super.onTouchEvent(event);
-        }
+ public boolean onTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -261,10 +254,8 @@ public boolean onTouchEvent(MotionEvent event) {
     }
 ```
 
-
-#使用
-##以ListView 为例子
-####布局文件
+##使用 以ListView 为例子
+1. 布局文件
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <com.sys.blackcat.stickheaderlayout.StickHeaderLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -295,7 +286,7 @@ public boolean onTouchEvent(MotionEvent event) {
         android:background="@color/green" />
 </com.sys.blackcat.stickheaderlayout.StickHeaderLayout>
 ```
-###Activity
+2. Activity 逻辑处理
 ```
 public class ListViewDemo extends AppCompatActivity {
     private StickHeaderLayout layout;
@@ -333,14 +324,8 @@ public class ListViewDemo extends AppCompatActivity {
     }
 }
 ```
-##DemoUtils
+3. DemoUtils  判断内容部分是否可以滑动
 ```
-/**
-     * 判断listView 是否可以滑动
-     *
-     * @param viewGroup
-     * @return
-     */
 public static boolean isOnTop(ViewGroup viewGroup) {
         int[] groupLocation = new int[2];
         viewGroup.getLocationOnScreen(groupLocation);
@@ -352,5 +337,4 @@ public static boolean isOnTop(ViewGroup viewGroup) {
         return false;
     }
 ```
-	
 
