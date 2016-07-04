@@ -49,7 +49,7 @@ Stickheaderlayout 继承 ViewGroup ，总体分为三块
 设置滚动回调
 
 ##ViewDragHelper初始化
-1. 滚动状态监听
+- 滚动状态监听
 ```
  public void onViewDragStateChanged(int state) {
             super.onViewDragStateChanged(state);
@@ -63,13 +63,13 @@ Stickheaderlayout 继承 ViewGroup ，总体分为三块
             }
         }
 ```
-2. 判断ViewDragHelper是否触发滚动 头部、标题、内容都可以滑动
+- 判断ViewDragHelper是否触发滚动 头部、标题、内容都可以滑动
 ```
 public boolean tryCaptureView(View child, int pointerId) {
            return true;
         }
 ```
-3. 手指按住contentView时滚动时，头部、标题、内容的位置变化,返回contentView是移动距离
+- 手指按住contentView时滚动时，头部、标题、内容的位置变化,返回contentView是移动距离
 ```
 public int clampViewPositionVertical(View child, int top, int dy) {
             if (child == headView) {
@@ -99,7 +99,7 @@ public int clampViewPositionVertical(View child, int top, int dy) {
             return contentTop;
         }
 ```
-4. 手指离开屏幕时，触发快速滚动
+- 手指离开屏幕时，触发快速滚动
 ```
 public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
@@ -123,7 +123,7 @@ public void onViewReleased(View releasedChild, float xvel, float yvel) {
             invalidate();
         }
 ```
-5. 触发快速滚动后头部、标题、内容的位置变化
+- 触发快速滚动后头部、标题、内容的位置变化
 ```
 public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
             super.onViewPositionChanged(changedView, left, top, dx, dy);
@@ -147,7 +147,7 @@ public void onViewPositionChanged(View changedView, int left, int top, int dx, i
 ```
 
 ##手势的相关处理
-1. 事件的拦截
+- 事件的拦截
 ```
 public boolean onInterceptTouchEvent(MotionEvent ev) {
         final int action = MotionEventCompat.getActionMasked(ev);
@@ -194,7 +194,7 @@ public boolean onInterceptTouchEvent(MotionEvent ev) {
         return mIsBeingDragged;
     }
 ```
-2. 判断手势的滑动方向
+- 判断手势的滑动方向
 ```
 public enum DragEdge {
         None,
@@ -224,7 +224,7 @@ private void checkCanDrag(MotionEvent ev) {
         mIsBeingDragged = true;
     }
 ```
-3. 事件的处理
+- 事件的处理
 ``` 
  public boolean onTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
@@ -255,7 +255,7 @@ private void checkCanDrag(MotionEvent ev) {
 ```
 
 ##使用 以ListView 为例子
-1. 布局文件
+- 布局文件
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <com.sys.blackcat.stickheaderlayout.StickHeaderLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -286,7 +286,7 @@ private void checkCanDrag(MotionEvent ev) {
         android:background="@color/green" />
 </com.sys.blackcat.stickheaderlayout.StickHeaderLayout>
 ```
-2. Activity 逻辑处理
+- Activity 逻辑处理
 ```
 public class ListViewDemo extends AppCompatActivity {
     private StickHeaderLayout layout;
@@ -324,7 +324,7 @@ public class ListViewDemo extends AppCompatActivity {
     }
 }
 ```
-3. DemoUtils  判断内容部分是否可以滑动
+- DemoUtils  判断内容部分是否可以滑动
 ```
 public static boolean isOnTop(ViewGroup viewGroup) {
         int[] groupLocation = new int[2];
