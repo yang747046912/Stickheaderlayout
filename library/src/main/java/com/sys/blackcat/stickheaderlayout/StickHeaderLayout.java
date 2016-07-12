@@ -312,6 +312,10 @@ public class StickHeaderLayout extends ViewGroup {
         this.retentionHeight = retentionHeight;
     }
 
+    public void setScrollable(boolean scrollable) {
+        this.scrollable = scrollable;
+    }
+
     public void setScroll(IpmlScrollChangListener scroll) {
         this.scroll = scroll;
     }
