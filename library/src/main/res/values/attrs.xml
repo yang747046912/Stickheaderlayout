@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="StickHeaderLayout">
         <attr name="retentionHeight" format="dimension"/>
+        <attr name="scrollable" format="boolean"/>
     </declare-styleable>
 </resources>

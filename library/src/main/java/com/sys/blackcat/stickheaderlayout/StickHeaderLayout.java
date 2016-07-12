@@ -21,6 +21,7 @@ public class StickHeaderLayout extends ViewGroup {
      * 是否第一次布局
      */
     private boolean firstLayout = true;
+    private boolean scrollable = true;
 
     private DragEdge dragEdge = DragEdge.None;
     private IpmlScrollChangListener scroll;
@@ -49,6 +50,7 @@ public class StickHeaderLayout extends ViewGroup {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.StickHeaderLayout);
         retentionHeight = typedArray.getDimensionPixelSize(R.styleable.StickHeaderLayout_retentionHeight, 0);
+        scrollable = typedArray.getBoolean(R.styleable.StickHeaderLayout_scrollable,true);
         typedArray.recycle();
         mDragHelper = ViewDragHelper.create(this, 1f, callback);
     }
@@ -193,6 +195,9 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (!scrollable){
+            return super.onInterceptTouchEvent(ev);
+        }
         final int action = MotionEventCompat.getActionMasked(ev);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -260,6 +265,9 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!scrollable){
+            return super.onTouchEvent(event);
+        }
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
