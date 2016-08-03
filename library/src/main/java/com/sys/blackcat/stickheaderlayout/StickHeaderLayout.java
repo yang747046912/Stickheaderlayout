@@ -50,7 +50,7 @@ public class StickHeaderLayout extends ViewGroup {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.StickHeaderLayout);
         retentionHeight = typedArray.getDimensionPixelSize(R.styleable.StickHeaderLayout_retentionHeight, 0);
-        scrollable = typedArray.getBoolean(R.styleable.StickHeaderLayout_scrollable,true);
+        scrollable = typedArray.getBoolean(R.styleable.StickHeaderLayout_scrollable, true);
         typedArray.recycle();
         mDragHelper = ViewDragHelper.create(this, 1f, callback);
     }
@@ -109,20 +109,33 @@ public class StickHeaderLayout extends ViewGroup {
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
             if (dragEdge == DragEdge.Bottom) {
-                if (yvel < -mDragHelper.getMinVelocity()) {
+                if (yvel < -mDragHelper.getMinVelocity())
                     mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
-                } else if (releasedChild == headView) {
-                    mDragHelper.smoothSlideViewTo(headView, 0, -headHeight + retentionHeight);
-                } else {
-                    mDragHelper.smoothSlideViewTo(titleView, 0, retentionHeight);
+            } else if (dragEdge == DragEdge.Top) {
+                if (yvel > mDragHelper.getMinVelocity())
+                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
+            }
+
+
+            if (dragEdge == DragEdge.Bottom) {
+                if (yvel < -mDragHelper.getMinVelocity()) {
+                    if (releasedChild == contentView) {
+                        mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
+                    } else if (releasedChild == headView) {
+                        mDragHelper.smoothSlideViewTo(headView, 0, -headHeight + retentionHeight);
+                    } else {
+                        mDragHelper.smoothSlideViewTo(titleView, 0, retentionHeight);
+                    }
                 }
             } else if (dragEdge == DragEdge.Top) {
-                if (releasedChild == contentView) {
-                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
-                } else if (releasedChild == headView) {
-                    mDragHelper.smoothSlideViewTo(headView, 0, 0);
-                } else {
-                    mDragHelper.smoothSlideViewTo(titleView, 0, headHeight);
+                if (yvel > mDragHelper.getMinVelocity()) {
+                    if (releasedChild == contentView) {
+                        mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
+                    } else if (releasedChild == headView) {
+                        mDragHelper.smoothSlideViewTo(headView, 0, 0);
+                    } else {
+                        mDragHelper.smoothSlideViewTo(titleView, 0, headHeight);
+                    }
                 }
             }
             invalidate();
@@ -195,7 +208,7 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (!scrollable){
+        if (!scrollable) {
             return super.onInterceptTouchEvent(ev);
         }
         final int action = MotionEventCompat.getActionMasked(ev);
@@ -247,7 +260,9 @@ public class StickHeaderLayout extends ViewGroup {
         float dy = ev.getRawY() - sY;
         float angle = Math.abs(dy / dx);
         angle = (float) Math.toDegrees(Math.atan(angle));
-        if (angle < 45) {
+        if (Float.isNaN(angle)) {
+            dragEdge = DragEdge.None;
+        } else if (angle < 45) {
             if (dx > 0) {
                 dragEdge = DragEdge.Left;
             } else if (dx < 0) {
@@ -265,7 +280,7 @@ public class StickHeaderLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!scrollable){
+        if (!scrollable) {
             return super.onTouchEvent(event);
         }
         int action = event.getActionMasked();
