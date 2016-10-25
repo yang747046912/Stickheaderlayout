@@ -326,6 +326,12 @@ public class StickHeaderLayout extends ViewGroup {
     public void setRetentionHeight(int retentionHeight) {
         this.retentionHeight = retentionHeight;
     }
+    /**
+     * 获取向上滚动headView 保留的高度
+     */
+    public int getRetentionHeight() {
+        return retentionHeight;
+    }
 
     public void setScrollable(boolean scrollable) {
         this.scrollable = scrollable;

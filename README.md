@@ -6,7 +6,7 @@ stickheaderlayout
 <dependency>
   <groupId>com.sys.blackcat.stickheaderlayout</groupId>
   <artifactId>library</artifactId>
-  <version>1.3.4</version>
+  <version>1.3.5</version>
   <type>pom</type>
 </dependency>
 ```
