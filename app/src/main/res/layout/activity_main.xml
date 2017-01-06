@@ -11,21 +11,26 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="onClick"
-        android:text="@string/list_example" />
+        android:text="@string/list_example"
+        android:textAllCaps="false" />
+
     <Button
         android:id="@+id/btn_grid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="onClick"
-        android:text="@string/grid_example" />
+        android:text="@string/grid_example"
+        android:textAllCaps="false" />
+
     <Button
         android:id="@+id/btn_scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="onClick"
-        android:text="@string/scrollView_example" />
+        android:text="@string/scrollView_example"
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btn_recycler_view"
@@ -33,8 +38,11 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="onClick"
-        android:text="@string/recyclerView_example" />
+        android:text="@string/recyclerView_example"
+        android:textAllCaps="false" />
+
     <Button
+        android:textAllCaps="false"
         android:id="@+id/btn_view_pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

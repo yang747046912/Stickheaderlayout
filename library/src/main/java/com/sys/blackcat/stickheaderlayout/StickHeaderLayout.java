@@ -109,15 +109,6 @@ public class StickHeaderLayout extends ViewGroup {
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
             if (dragEdge == DragEdge.Bottom) {
-                if (yvel < -mDragHelper.getMinVelocity())
-                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
-            } else if (dragEdge == DragEdge.Top) {
-                if (yvel > mDragHelper.getMinVelocity())
-                    mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + headHeight);
-            }
-
-
-            if (dragEdge == DragEdge.Bottom) {
                 if (yvel < -mDragHelper.getMinVelocity()) {
                     if (releasedChild == contentView) {
                         mDragHelper.smoothSlideViewTo(contentView, 0, titleHeight + retentionHeight);
@@ -326,6 +317,7 @@ public class StickHeaderLayout extends ViewGroup {
     public void setRetentionHeight(int retentionHeight) {
         this.retentionHeight = retentionHeight;
     }
+
     /**
      * 获取向上滚动headView 保留的高度
      */
